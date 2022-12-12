@@ -65,9 +65,9 @@ The AOI in which the simulation will be situated needs to be defined and describ
 
 1. From the toolbar at the top right of the map editor, select the button with the square
 2. Double-click on the map where you want to start drawing the rectangle
-2. Drag your mouse to shape the rectangle
-3. Click to fix the rectangle
-3. Save the rectangle as a WKT file (`Save > WKT` in the menu above the map).
+3. Drag your mouse to shape the rectangle
+4. Click to fix the rectangle
+5. Save the rectangle as a WKT file (`Save > WKT` in the menu above the map).
 
 ### Step 2: Getting graph data
 
@@ -77,7 +77,7 @@ After you saved the file, open the provided Jupyter Notebook `Download Graph.ipy
 
 ### Step 3: Getting POI data
 
-For POI data, we utilize OSM data as well. The people of Geofabrik have done some preprocessing of raw OSM data, which makes the ingestion into the model easier. See the .shp file download for South Africa here: [south-africa-latest-free.shp.zip](http://download.geofabrik.de/africa/south-africa.html) (all other countries are provided as well). For our AOI of Port Elizabeth, we now need to extract all relevant POIs like restaurants, cafes, shops, etc. 
+For POI data, we utilize OSM data as well. The people of Geofabrik have done some preprocessing of raw OSM data, which makes the ingestion into the model easier. See the .shp file download for South Africa here: [south-africa-latest-free.shp.zip](http://download.geofabrik.de/africa/south-africa.html) (all other countries are provided as well). For our AOI of Port Elizabeth, we now need to extract all relevant POIs like restaurants, cafes, shops, etc.
 
 For this, please download the data and have a look at the `Prepare POIs.ipynb` notebook, as before you might need to upload and rename the WKT file as well.
 
