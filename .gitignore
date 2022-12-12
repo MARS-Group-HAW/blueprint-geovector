@@ -454,3 +454,7 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 .ipynb_checkpoints
 /cache
+
+# Ignore Geofabrik downloads
+*.shp.zip
+*.shp/*
