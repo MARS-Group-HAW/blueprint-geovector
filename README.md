@@ -34,7 +34,8 @@ Note that you usually have no persistent storage on Google Colab. Any downloaded
 
 With the provided Docker container, you have a ready-to-use JupyterLab instance with all installed dependencies. However, you are free to use your own Jupyter Notebook instance instead of using the provided Docker container. In this case, you will need to install the required dependencies yourself.
 
-**NOTE:** Some of the Geographic Information System (GIS) dependencies of the used Python libraries are known to be difficult to install. Please see [this](https://stackoverflow.com/questions/54734667/error-installing-geopandas-a-gdal-api-version-must-be-specified-in-anaconda) and [this](https://stackoverflow.com/questions/62299567/error-installing-geopandas-a-gdal-api-version-must-be-specified-in-visual-st) StackOverflow post for more information. If you work on a Windows machine and are unable to install dependencies with `pip`, please see this [Wheel (WHL) file depository](https://www.lfd.uci.edu/~gohlke/pythonlibs/).
+> **Note**  
+Some of the Geographic Information System (GIS) dependencies of the used Python libraries are known to be difficult to install. Please see [this](https://stackoverflow.com/questions/54734667/error-installing-geopandas-a-gdal-api-version-must-be-specified-in-anaconda) and [this](https://stackoverflow.com/questions/62299567/error-installing-geopandas-a-gdal-api-version-must-be-specified-in-visual-st) StackOverflow post for more information. If you work on a Windows machine and are unable to install dependencies with `pip`, please see this [Wheel (WHL) file depository](https://www.lfd.uci.edu/~gohlke/pythonlibs/).
 
 ## How to Use the Notebooks and Model
 
