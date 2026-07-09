@@ -458,3 +458,6 @@ $RECYCLE.BIN/
 # Ignore Geofabrik downloads
 *.shp.zip
 *.shp/*
+
+# Ignore generated backup GeoJSON files written by Download Graph.ipynb / Prepare POIs.ipynb
+GeoVectorBlueprint/Resources/bkp_*.geojson

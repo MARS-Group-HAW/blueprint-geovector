@@ -2,6 +2,7 @@ using System;
 using Mars.Components.Environments;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Environments;
+using Mars.Interfaces.Layers;
 using NetTopologySuite.Geometries;
 using Position = Mars.Interfaces.Environments.Position;
 
@@ -53,7 +54,7 @@ public class Human : IAgent<GraphLayer>, ISpatialGraphEntity
     /// <summary>
     ///     The length of this agent.
     /// </summary>
-    public double Length { get; }
+    public double Length { get; } = 0.5;
 
     /// <summary>
     ///     The edge on which the agent currently is.
@@ -73,12 +74,13 @@ public class Human : IAgent<GraphLayer>, ISpatialGraphEntity
     /// <summary>
     ///     The current modality type of the agent.
     /// </summary>
-    public SpatialModalityType ModalityType { get; }
+    public SpatialModalityType ModalityType { get; } = SpatialModalityType.Walking;
 
     /// <summary>
     ///     A flag that states if the agent can be collided with.
+    ///     Collision handling between agents is not modeled by this blueprint, so this is intentionally false.
     /// </summary>
-    public bool IsCollidingEntity { get; }
+    public bool IsCollidingEntity { get; } = false;
 
     /// <summary>
     ///     A unique identifier of the agent.
@@ -114,7 +116,13 @@ public class Human : IAgent<GraphLayer>, ISpatialGraphEntity
     /// </summary>
     public void Tick()
     {
-        if (Route.GoalReached)
+        if (Route == null)
+        {
+            // No route could be found the last time one was requested (e.g. the destination was unreachable).
+            // Try again this tick instead of crashing on a null route.
+            Route = CreateNewRoute();
+        }
+        else if (Route.GoalReached)
         {
             // Goal of current route has been reached, so find a new route from to some destination.
             Console.WriteLine("Goal reached. Start new route.");
@@ -141,31 +149,69 @@ public class Human : IAgent<GraphLayer>, ISpatialGraphEntity
     /// <summary>
     ///     This subroutine create a new route for the agent, using its current position as that source of the route and
     ///     the position of a randomly chosen POI as the destination of the route.
+    ///     A POI can be unreachable (e.g. disconnected graph components) or the configured category can be absent from
+    ///     the loaded POI data, so several POIs are tried before giving up for this tick.
     /// </summary>
-    /// <returns>The created route</returns>
+    /// <returns>The created route, or null if no reachable POI could be found</returns>
     private Route CreateNewRoute()
     {
-        // Increment counter to track how many routes the agent completed.
-        RouteCounter += 1;
+        const int maxAttempts = 5;
 
-        // Find a random POI with the given OSM category (in this case, "restaurant").
-        // See the Prepare POIs Notebook for more categories.
-        var poi = PoiLayer.GetRandomPoiForCategory("restaurant");
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            // Find a random POI with the given OSM category (in this case, "restaurant").
+            // See the Prepare POIs Notebook for more categories.
+            var poi = TryGetRandomPoi("restaurant");
+            if (poi == null)
+            {
+                return null;
+            }
 
-        // Log the category and name of the new destination POI in the CSV output.
-        TargetPoiCategory = (string)poi.VectorStructured.Attributes["fclass"];
-        TargetPoiName = (string)poi.VectorStructured.Attributes["name"];
+            // Get the Position of the POI.
+            var point = (Point)poi.VectorStructured.Geometry;
+            var targetPosition = new Position(point.X, point.Y);
 
-        // Get the Position of the POI.
-        var point = (Point)poi.VectorStructured.Geometry;
-        var targetPosition = new Position(point.X, point.Y);
+            // Find the nodes of the graph corresponding to the agent's current position and the chosen target position.
+            var startNode = GraphLayer.Environment.NearestNode(Position);
+            var goalNode = GraphLayer.Environment.NearestNode(targetPosition);
 
-        // Find the nodes of the graph corresponding to the agent's current position and the chosen target position.
-        var startNode = GraphLayer.Environment.NearestNode(Position);
-        var goalNode = GraphLayer.Environment.NearestNode(targetPosition);
+            // Create a route between the two nodes. This is null if no path exists (e.g. disconnected graph components).
+            var route = GraphLayer.Environment.FindShortestRoute(startNode, goalNode);
+            if (route != null)
+            {
+                // Increment counter to track how many routes the agent completed.
+                RouteCounter += 1;
 
-        // Create and return a route between the two nodes.
-        return GraphLayer.Environment.FindShortestRoute(startNode, goalNode);
+                // Log the category and name of the new destination POI in the CSV output.
+                TargetPoiCategory = (string)poi.VectorStructured.Attributes["fclass"];
+                TargetPoiName = (string)poi.VectorStructured.Attributes["name"];
+
+                return route;
+            }
+
+            Console.WriteLine(
+                $"No path found to POI '{(string)poi.VectorStructured.Attributes["name"]}'. " +
+                $"Retrying with a different POI ({attempt}/{maxAttempts}).");
+        }
+
+        Console.WriteLine("Could not find a reachable POI after several attempts. Agent will remain idle this tick.");
+        return null;
+    }
+
+    /// <summary>
+    ///     Looks up a random POI of the given category, returning null (instead of throwing) if none exist.
+    /// </summary>
+    private IVectorFeature TryGetRandomPoi(string category)
+    {
+        try
+        {
+            return PoiLayer.GetRandomPoiForCategory(category);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine($"No POIs of category '{category}' found in the loaded POI data. Agent will remain idle.");
+            return null;
+        }
     }
 
     #endregion
