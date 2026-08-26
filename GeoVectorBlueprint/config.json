@@ -1,5 +1,5 @@
 {
-  "id": "GeodataBlueprint",
+  "id": "GeoVectorBlueprint",
   "globals": {
     "deltaT": 1,
     "startPoint": "2022-09-12T00:00:00",

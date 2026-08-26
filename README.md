@@ -78,18 +78,18 @@ After you saved the file, open the provided Jupyter Notebook `Download Graph.ipy
 
 ### Step 3: Getting POI data
 
-For POI data, we utilize OSM data as well. The people of Geofabrik have done some preprocessing of raw OSM data, which makes the ingestion into the model easier. See the .shp file download for South Africa here: [south-africa-latest-free.shp.zip](http://download.geofabrik.de/africa/south-africa.html) (all other countries are provided as well). For our AOI of Port Elizabeth, we now need to extract all relevant POIs like restaurants, cafes, shops, etc.
+For POI data, we utilize OSM data as well. The people of Geofabrik have done some preprocessing of raw OSM data, which makes the ingestion into the model easier. See, for example, the .shp file download for South Africa here: [south-africa-latest-free.shp.zip](http://download.geofabrik.de/africa/south-africa.html) (all other countries/regions are provided as well). For your AOI, extract all relevant POIs like restaurants, cafes, shops, etc.
 
 For this, please download the data and have a look at the `Prepare POIs.ipynb` notebook, as before you might need to upload and rename the WKT file as well.
 
 ### Step 4: Running the model
 
-In this starter template, the data needed for running a simulation on the area of Port Elizabeth have already been downloaded and put into the Resources folder of the model at `GeodataBlueprint/Resources`.
+In this starter template, the data needed for running a simulation on the area of Ottawa have already been downloaded and put into the Resources folder of the model at `GeoVectorBlueprint/Resources`.
 
-If you did run the both notebooks with a new AOI and the provided Docker container, the files have already been updated (to prevent data loos existing files for the graph and POIs are renamed to `bkp_*` files in the Resources directory if you need them later).  
-In case you did run the notebooks on an other JupyterHub download the created `GeodataBlueprint/Resources` folder and copy it's contents into the local folder.
+If you did run both notebooks with a new AOI and the provided Docker container, the files have already been updated (to prevent data loss, existing files for the graph and POIs are renamed to `bkp_*` files in the Resources directory if you need them later).  
+In case you ran the notebooks on another JupyterHub, download the created `GeoVectorBlueprint/Resources` folder and copy its contents into the local folder.
 
-To run the model open the `GeodataBlueprint.sln` with Rider and run it.
+To run the model open the `GeoVectorBlueprint.sln` with Rider and run it.
 
 After running the model, some log files and movement files are available that we now can analyze.
 
