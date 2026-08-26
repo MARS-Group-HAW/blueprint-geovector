@@ -26,8 +26,8 @@ The two halves are connected only through files on disk (GeoJSON in `GeoVectorBl
 - `Program.cs` — entry point. Registers layer/agent types on a `ModelDescription`, loads `config.json`, and runs the simulation via `SimulationStarter`.
 - `config.json` — simulation configuration: sim time window (`globals`), input layer files (`layers`), agent counts and output kinds (`agents`). This is the primary place to tweak run duration, agent count, and output format without touching code.
 - `Model/GraphLayer.cs` — wraps a `SpatialGraphEnvironment` built from the edges GeoJSON; spawns `Human` agents onto random graph nodes.
-- `Model/PoiLayer.cs` — a `VectorLayer` over `pois.geojson`; exposes `GetRandomPoiForCategory(category)` (matches on the `fclass` attribute, throws if none found).
-- `Model/Human.cs` — the agent. On `Init`, drops onto a random graph node and creates a route to a random POI (currently hardcoded to `"restaurant"` in `CreateNewRoute()`). On each `Tick`, advances ~2m/s along its route via `Environment.Move`; on reaching the goal, picks a new random POI and route.
+- `Model/PoiLayer.cs` — a `VectorLayer` over `pois.geojson`; exposes `GetRandomPoiForCategory(category)` (matches on the `fclass` attribute, throws `ArgumentException` if none found).
+- `Model/Human.cs` — the agent. On `Init`, drops onto a random graph node and creates a route to a random POI (currently hardcoded to `"restaurant"` in `CreateNewRoute()`). On each `Tick`, advances ~2m/s along its route via `Environment.Move`; on reaching the goal, picks a new random POI and route. `CreateNewRoute()` retries up to 5 times against different random POIs of the category if a POI turns out unreachable (disconnected graph), and swallows a missing-category `ArgumentException` from `PoiLayer` — if all attempts fail the agent just stays idle for that tick (logged to console) rather than crashing the simulation.
 - `Resources/` — the GeoJSON inputs (`edges_drive.geojson`, `pois.geojson`) consumed by the layers above, plus timestamped `bkp_*.geojson` backups automatically created by the notebooks when re-running downloads.
 
 Data flow: `config.json` layer file paths → `GraphLayer`/`PoiLayer.InitLayer` → `Human` agents query `PoiLayer` for destinations and `GraphLayer.Environment` for routing/movement → simulation loop runs for the configured `startPoint`..`endPoint` window → CSV + trip GeoJSON output written to the build output directory (e.g. `bin/Debug/net10.0/Human.csv`, `Human_trips.geojson`).
@@ -73,5 +73,5 @@ Notebooks must be run in order for a fresh AOI: `Download Graph.ipynb` → `Prep
 ## Notes
 
 - `Human.CreateNewRoute()` hardcodes the POI category `"restaurant"` — change this to target a different `fclass` category present in `pois.geojson`.
-- `PoiLayer.GetRandomPoiForCategory` throws `ArgumentException` if the requested category has zero POIs in the loaded data; the AOI/filter must actually contain that category.
+- If the configured category has zero POIs in the loaded data (or every sampled POI is unreachable), agents silently stay idle rather than erroring — check the console log for repeated "No POIs of category ... found" / "Could not find a reachable POI" messages when a new AOI/filter yields no movement.
 - POI categories are OSM `fclass` values; see the Geofabrik POI documentation linked from `Prepare POIs.ipynb` for the full list.
